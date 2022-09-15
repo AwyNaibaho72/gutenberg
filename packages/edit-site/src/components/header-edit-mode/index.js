@@ -26,6 +26,7 @@ import {
 	VisuallyHidden,
 } from '@wordpress/components';
 import { store as keyboardShortcutsStore } from '@wordpress/keyboard-shortcuts';
+import { store as preferencesStore } from '@wordpress/preferences';
 
 /**
  * Internal dependencies
@@ -41,11 +42,7 @@ const preventDefault = ( event ) => {
 	event.preventDefault();
 };
 
-export default function Header( {
-	openEntitiesSavedStates,
-	isEntitiesSavedStatesOpen,
-	showIconLabels,
-} ) {
+export default function HeaderEditMode() {
 	const inserterButton = useRef();
 	const {
 		deviceType,
@@ -56,6 +53,7 @@ export default function Header( {
 		isVisualMode,
 		settings,
 		blockEditorMode,
+		showIconLabels,
 	} = useSelect( ( select ) => {
 		const {
 			__experimentalGetPreviewDeviceType,
@@ -81,6 +79,10 @@ export default function Header( {
 			isVisualMode: getEditorMode() === 'visual',
 			settings: getSettings(),
 			blockEditorMode: __unstableGetEditorMode(),
+			showIconLabels: select( preferencesStore ).get(
+				'core/edit-site',
+				'showIconLabels'
+			),
 		};
 	}, [] );
 
@@ -121,7 +123,11 @@ export default function Header( {
 	const isZoomedOutView = blockEditorMode === 'zoom-out';
 
 	return (
-		<div className="edit-site-header-edit-mode">
+		<div
+			className={ classnames( 'edit-site-header-edit-mode', {
+				'show-icon-labels': showIconLabels,
+			} ) }
+		>
 			<NavigableToolbar
 				className="edit-site-header-edit-mode__start"
 				aria-label={ __( 'Document tools' ) }
@@ -182,6 +188,7 @@ export default function Header( {
 							{ isZoomedOutViewExperimentEnabled && (
 								<ToolbarItem
 									as={ Button }
+									className="edit-site-header-edit-mode__zoom-out-view-toggle"
 									icon={ chevronUpDown }
 									isPressed={ isZoomedOutView }
 									/* translators: button label text should, if possible, be under 16 characters. */
@@ -238,10 +245,7 @@ export default function Header( {
 							</PreviewOptions>
 						</div>
 					) }
-					<SaveButton
-						openEntitiesSavedStates={ openEntitiesSavedStates }
-						isEntitiesSavedStatesOpen={ isEntitiesSavedStatesOpen }
-					/>
+					<SaveButton />
 					<PinnedItems.Slot scope="core/edit-site" />
 					<MoreMenu showIconLabels={ showIconLabels } />
 				</div>
