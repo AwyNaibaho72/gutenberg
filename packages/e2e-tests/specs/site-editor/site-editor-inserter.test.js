@@ -5,6 +5,7 @@ import {
 	deleteAllTemplates,
 	activateTheme,
 	visitSiteEditor,
+	toggleCanvasMode,
 } from '@wordpress/e2e-test-utils';
 
 describe( 'Site Editor Inserter', () => {
@@ -18,6 +19,7 @@ describe( 'Site Editor Inserter', () => {
 	} );
 	beforeEach( async () => {
 		await visitSiteEditor();
+		await toggleCanvasMode();
 	} );
 
 	it( 'inserter toggle button should toggle global inserter', async () => {
