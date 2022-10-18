@@ -27,6 +27,26 @@ async function clone( repositoryUrl ) {
 }
 
 /**
+ * Clones a Local GitHub repository.
+ *
+ * @param {string} path
+ *
+ * @return {Promise<{head: string; parent: string; localRepo: string}>} Repository local Path
+ */
+async function cloneLocal( path ) {
+	const gitWorkingDirectoryPath = getRandomTemporaryPath();
+	const simpleGit = SimpleGit();
+	await simpleGit.clone( path, gitWorkingDirectoryPath, [ '--depth=1' ] );
+	const head = await simpleGit.raw( 'rev-parse', 'HEAD' );
+	const parent = await simpleGit.raw( 'rev-parse', 'HEAD@{1}' );
+	return {
+		head,
+		parent,
+		localRepo: gitWorkingDirectoryPath,
+	};
+}
+
+/**
  * Fetches changes from the repository.
  *
  * @param {string}          gitWorkingDirectoryPath Local repository path.
@@ -187,6 +207,7 @@ async function replaceContentFromRemoteBranch(
 
 module.exports = {
 	clone,
+	cloneLocal,
 	commit,
 	checkoutRemoteBranch,
 	createLocalBranch,

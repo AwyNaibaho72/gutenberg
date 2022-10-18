@@ -212,7 +212,11 @@ async function runPerformanceTests( branches, options ) {
 	// 1- Preparing the tests directory.
 	log( '\n>> Preparing the tests directories' );
 	log( '    >> Cloning the repository' );
-	const baseDirectory = await git.clone( options.clonePath );
+	const {
+		localRepo: baseDirectory,
+		head,
+		parent,
+	} = await git.cloneLocal( options.clonePath );
 	const rootDirectory = getRandomTemporaryPath();
 	const performanceTestDirectory = rootDirectory + '/tests';
 	await runShellScript( 'mkdir -p ' + rootDirectory );
@@ -223,12 +227,11 @@ async function runPerformanceTests( branches, options ) {
 		log(
 			'    >> Fetching the test branch: ' +
 				formats.success( options.testsBranch ) +
-				' branch'
+				' branch (' +
+				formats.success( head ) +
+				')'
 		);
-		await git.checkoutRemoteBranch(
-			performanceTestDirectory,
-			options.testsBranch
-		);
+		await git.checkoutRemoteBranch( performanceTestDirectory, head );
 	}
 	log( '    >> Installing dependencies and building packages' );
 	await runShellScript(
@@ -237,6 +240,7 @@ async function runPerformanceTests( branches, options ) {
 	);
 	log( '    >> Creating the environment folders' );
 	await runShellScript( 'mkdir -p ' + rootDirectory + '/envs' );
+	branches = [ head, parent ];
 
 	// 2- Preparing the environment directories per branch.
 	log( '\n>> Preparing an environment directory per branch' );
