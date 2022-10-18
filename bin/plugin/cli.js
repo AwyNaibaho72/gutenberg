@@ -95,6 +95,10 @@ program
 	.alias( 'perf' )
 	.option( ...ciOption )
 	.option(
+		'--clone-path <path>',
+		'Local path where cloned repo is available'
+	)
+	.option(
 		'--tests-branch <branch>',
 		"Use this branch's performance test files"
 	)
