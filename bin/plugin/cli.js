@@ -99,6 +99,10 @@ program
 		'Local path where cloned repo is available'
 	)
 	.option(
+		'--merge-ref <branch>',
+		'Name of ref merging PR into base branch, e.g. refs/pull/44907/merge'
+	)
+	.option(
 		'--tests-branch <branch>',
 		"Use this branch's performance test files"
 	)

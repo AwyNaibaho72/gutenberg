@@ -21,6 +21,7 @@ const git = require( '../lib/git' );
  * @typedef WPPerformanceCommandOptions
  *
  * @property {boolean=} ci          Run on CI.
+ * @property {string=}  mergeRef    Name of ref merging test branch into base branch, e.g. refs/pull/44907/merge.
  * @property {string}   clonePath   Filesystem path where repo was cloned in actions/checkout step.
  * @property {string=}  testsBranch The branch whose performance test files will be used for testing.
  * @property {string=}  wpVersion   The WordPress version to be used as the base install for testing.
@@ -212,11 +213,11 @@ async function runPerformanceTests( branches, options ) {
 	// 1- Preparing the tests directory.
 	log( '\n>> Preparing the tests directories' );
 	log( '    >> Cloning the repository' );
-	const {
-		localRepo: baseDirectory,
-		head,
-		parent,
-	} = await git.cloneLocal( options.clonePath );
+	const baseDirectory = await git.cloneAt(
+		options.clonePath,
+		options.mergeRef,
+		options.testsBranch
+	);
 	const rootDirectory = getRandomTemporaryPath();
 	const performanceTestDirectory = rootDirectory + '/tests';
 	await runShellScript( 'mkdir -p ' + rootDirectory );
@@ -227,11 +228,12 @@ async function runPerformanceTests( branches, options ) {
 		log(
 			'    >> Fetching the test branch: ' +
 				formats.success( options.testsBranch ) +
-				' branch (' +
-				formats.success( head ) +
-				')'
+				' branch'
 		);
-		await git.checkoutRemoteBranch( performanceTestDirectory, head );
+		await git.checkoutRemoteBranch(
+			performanceTestDirectory,
+			options.testsBranch
+		);
 	}
 	log( '    >> Installing dependencies and building packages' );
 	await runShellScript(
@@ -240,7 +242,6 @@ async function runPerformanceTests( branches, options ) {
 	);
 	log( '    >> Creating the environment folders' );
 	await runShellScript( 'mkdir -p ' + rootDirectory + '/envs' );
-	branches = [ head, parent ];
 
 	// 2- Preparing the environment directories per branch.
 	log( '\n>> Preparing an environment directory per branch' );

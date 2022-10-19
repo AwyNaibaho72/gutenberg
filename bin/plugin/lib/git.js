@@ -3,6 +3,7 @@
  * External dependencies
  */
 const SimpleGit = require( 'simple-git' );
+const fs = require( 'fs' );
 
 /**
  * Internal dependencies
@@ -26,24 +27,16 @@ async function clone( repositoryUrl ) {
 	return gitWorkingDirectoryPath;
 }
 
-/**
- * Clones a Local GitHub repository.
- *
- * @param {string} path
- *
- * @return {Promise<{head: string; parent: string; localRepo: string}>} Repository local Path
- */
-async function cloneLocal( path ) {
+async function cloneAt( repositoryUrl, ref, sha ) {
 	const gitWorkingDirectoryPath = getRandomTemporaryPath();
-	const simpleGit = SimpleGit();
-	await simpleGit.clone( path, gitWorkingDirectoryPath, [ '--depth=1' ] );
-	const head = await simpleGit.raw( 'rev-parse', 'HEAD' );
-	const parent = await simpleGit.raw( 'rev-parse', 'HEAD@{1}' );
-	return {
-		head,
-		parent,
-		localRepo: gitWorkingDirectoryPath,
-	};
+	fs.mkdirSync( gitWorkingDirectoryPath, { recursive: true } );
+	console.log( `>>> Fetching ${ ref } (${ sha }) at ${ repositoryUrl }` );
+	await SimpleGit( gitWorkingDirectoryPath )
+		.raw( 'init' )
+		.raw( 'remote', 'add', 'origin', repositoryUrl )
+		.raw( 'fetch', '--depth=2', 'origin', ref )
+		.raw( 'checkout', sha );
+	return gitWorkingDirectoryPath;
 }
 
 /**
@@ -207,7 +200,7 @@ async function replaceContentFromRemoteBranch(
 
 module.exports = {
 	clone,
-	cloneLocal,
+	cloneAt,
 	commit,
 	checkoutRemoteBranch,
 	createLocalBranch,
