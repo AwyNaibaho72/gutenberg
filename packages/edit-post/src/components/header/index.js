@@ -25,22 +25,17 @@ import { store as editPostStore } from '../../store';
 import TemplateTitle from './template-title';
 
 function Header( { setEntitiesSavedStatesCallback, isDistractionFree } ) {
-	const {
-		hasActiveMetaboxes,
-		isPublishSidebarOpened,
-		isSaving,
-		showIconLabels,
-	} = useSelect(
-		( select ) => ( {
-			hasActiveMetaboxes: select( editPostStore ).hasMetaBoxes(),
-			isPublishSidebarOpened:
-				select( editPostStore ).isPublishSidebarOpened(),
-			isSaving: select( editPostStore ).isSavingMetaBoxes(),
-			showIconLabels:
-				select( editPostStore ).isFeatureActive( 'showIconLabels' ),
-		} ),
-		[]
-	);
+	const { hasActiveMetaboxes, isPublishSidebarOpened, showIconLabels } =
+		useSelect(
+			( select ) => ( {
+				hasActiveMetaboxes: select( editPostStore ).hasMetaBoxes(),
+				isPublishSidebarOpened:
+					select( editPostStore ).isPublishSidebarOpened(),
+				showIconLabels:
+					select( editPostStore ).isFeatureActive( 'showIconLabels' ),
+			} ),
+			[]
+		);
 
 	const isLargeViewport = useViewportMatch( 'large' );
 
@@ -87,18 +82,13 @@ function Header( { setEntitiesSavedStatesCallback, isDistractionFree } ) {
 					// when the publish sidebar has been closed.
 					<PostSavedState
 						forceIsDirty={ hasActiveMetaboxes }
-						forceIsSaving={ isSaving }
 						showIconLabels={ showIconLabels }
 					/>
 				) }
 				<DevicePreview />
-				<PostPreviewButton
-					forceIsAutosaveable={ hasActiveMetaboxes }
-					forcePreviewLink={ isSaving ? null : undefined }
-				/>
+				<PostPreviewButton forceIsAutosaveable={ hasActiveMetaboxes } />
 				<PostPublishButtonOrToggle
 					forceIsDirty={ hasActiveMetaboxes }
-					forceIsSaving={ isSaving }
 					setEntitiesSavedStatesCallback={
 						setEntitiesSavedStatesCallback
 					}
